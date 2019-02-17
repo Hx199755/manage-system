@@ -38,6 +38,7 @@
     </div>
 </template>
 <script>
+import qs from 'qs';
 export default {
   data() {
     // 自定义密码的验证
@@ -97,8 +98,6 @@ export default {
       this.$refs[formName].validate(valid => {
         // 如果所有验证通过 valid就是true
         if (valid) {
-          alert("前端验证通过 可以提交给后端！");
-
           // 收集用户输入的所有账号数据
           let params = {
             username: this.accountAddForm.username,
@@ -106,12 +105,27 @@ export default {
             usergroup: this.accountAddForm.userGroup
           };
 
-        // 跳转到账号管理页面
-        this.$router.push('/accountmanage')
-
+          //axios发送数据到后台
+          this.axios.post('http://127.0.0.1:1234/account/accountadd', qs.stringify(params))
+           .then(response=>{
+             // 接收后端返回的错误码 和 提示信息
+             let { error_code,  reason } = response.data;
+                if(error_code===0){
+                  this.$message({
+                  type: 'success',
+                  message: reason
+                });
+                // 跳转到账号管理页面
+                this.$router.push('/accountmanage')
+                }else{
+                  //弹出失败提示
+                  this.$message.error(reason);               
+                }
+           })
+           .catch(err =>{
+             console.log(err)
+           })
         } else {
-          // 否则false
-          alert("前端验证失败 不能提交给后端！");
           return false;
         }
       })
