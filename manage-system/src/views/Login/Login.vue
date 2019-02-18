@@ -7,7 +7,6 @@
                 <i class="el-icon-menu"></i>
                 华联超市管理系统-登录
             </h1>
-
             <!-- 登录表单 -->
             <el-form :model="loginForm" status-icon :rules="rules" ref="loginForm" label-width="100px" class="demo-ruleForm">
                 <!-- 账号 -->
@@ -32,6 +31,8 @@
     </div>
 </template>
 <script>
+//引入qs
+import qs from 'qs';
 export default {
   data() {
     // 包含特殊字符的函数
@@ -85,7 +86,7 @@ export default {
         password: "",
         checkPwd: ""
       },
-      // 验证的规则（一份数据）
+      // 验证的规则
       rules: {
         // 验证用户名
         username: [
@@ -107,25 +108,31 @@ export default {
     };
   },
   methods: {
-    // 点击登录按钮 触发这个函数
+   // 登录按钮触发函数
     submitForm(formName) {
       // 获取表单组件 调用验证方法
       this.$refs[formName].validate(valid => {
         // 如果所有验证通过 valid就是true
         if (valid) {
-          alert("前端验证通过 可以提交给后端！");
-          // 后续就可以把收集的账号和密码 一起发送给后端 验证用户名和密码的正确性。
           // 收集账号和密码
           let params = {
             username: this.loginForm.username,
             password: this.loginForm.password
           };
-  
-          // 直接跳转到后端主页
-          this.$router.push("/");
+          //参数发送给后台
+          this.axios.post('http://127.0.0.1:1234/login/checklogin',qs.stringify(params))
+          .then(response=>{
+           // 跳转到后端主页
+           this.$router.push("/");
+          })
+          .catch(err=>{
+            console.log(err);
+            
+          })
+          
         } else {
           // 否则就是false
-          alert("前端验证失败 不能提交给后端！");
+          alert("前端验证失败 不能提交给后端");
           return false;
         }
       });
